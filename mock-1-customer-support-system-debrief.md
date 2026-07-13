@@ -1,5 +1,11 @@
 # Mock 1 Debrief - Customer Support Agent
 
+## Initial interview question
+
+> Design a production customer-support resolution agent for a large enterprise. The system should receive customer requests, use company knowledge and customer/order data, ask clarifying questions when necessary, call internal tools, autonomously resolve straightforward cases, and transfer complex or risky cases to human agents. Explain the requirements, high-level architecture, data flow, storage choices, security boundaries, failure handling, scalability, latency, and major trade-offs.
+
+The interviewer may introduce concrete constraints—such as refund limits, traffic, latency targets, available tools, and escalation policies—after the candidate asks clarification questions and presents a simple initial design.
+
 ## Main lesson
 
 The central design correction is to separate probabilistic reasoning from deterministic enforcement:

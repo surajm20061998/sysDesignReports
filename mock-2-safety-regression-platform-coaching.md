@@ -1,5 +1,11 @@
 # Mock 2 Coaching - Continuous Model Safety Regression Platform
 
+## Initial interview question
+
+> Your Attention Dilution project is currently a research-oriented experiment for testing long-context safety behavior. Design a continuous model-safety regression platform that can evaluate every newly proposed model and serving configuration, compare the results with an approved baseline, and produce an evidence-backed release decision. Explain the end-to-end workflow, high-level architecture, GPU execution and scheduling, evaluation strategy, reproducibility, isolation, failure recovery, storage, release gates, and major trade-offs.
+
+The interviewer may introduce concrete constraints—such as model sizes up to 400B parameters, heterogeneous precision, limited GPU clusters, thousands of harmful, benign, ambiguous, and policy-boundary prompts, automated judges, and human review—after the candidate clarifies the initial problem.
+
 ## Why this felt difficult
 
 The project experience was research-oriented, but the interview question asked for a platform around the experiment. The missing step was translating one experimental run into a repeatable service used by many engineers.
