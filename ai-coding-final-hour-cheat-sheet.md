@@ -276,3 +276,279 @@ Then answer:
 
 > **A passing test is useful only if it could have failed on the original bug.**
 
+---
+
+# Greenfield / Solution-Architecture Variant
+
+When the task is to design and build a new solution rather than fix a bug, use:
+
+> **Clarify → Contract → Flow → State → Policies → Vertical slice → Evaluate → Extend**
+
+The goal is:
+
+> **Design broadly, implement one narrow vertical slice, and clearly separate prototype decisions from production architecture.**
+
+## 1. Clarify the problem
+
+Ask only questions that materially change the design:
+
+- Who is the user?
+- What input enters the system?
+- What output must be produced?
+- Is the workflow synchronous, asynchronous, or streaming?
+- What scale should the MVP support?
+- Which latency, quality, cost, or availability target matters most?
+- What data, models, and tools are available?
+- What must never happen?
+- How will success be evaluated?
+
+Then state bounded assumptions:
+
+> “For this prototype, I’ll assume one tenant, synchronous requests, a small dataset, and no strict availability requirement. I’ll preserve interfaces that could later support multi-tenancy and asynchronous execution.”
+
+Do not spend fifteen minutes collecting every possible requirement.
+
+## 2. Define the contract
+
+Define the API or primary interface before drawing components.
+
+Example:
+
+```json
+POST /answer
+{
+  "question": "...",
+  "session_id": "..."
+}
+```
+
+```json
+{
+  "answer": "...",
+  "evidence": [],
+  "status": "completed"
+}
+```
+
+State critical invariants:
+
+- Every accepted request reaches a terminal state.
+- Side-effecting operations are idempotent.
+- Answers requiring evidence cannot finalize without evidence.
+- Tenant data cannot cross authorization boundaries.
+- Timeouts and partial failures are visible rather than silently ignored.
+
+## 3. Draw the request flow
+
+Start with the simplest happy path:
+
+```text
+Client
+  → API and validation
+  → application orchestrator
+  → dependency or model
+  → result validator
+  → response
+```
+
+Add components only when they have a clear responsibility:
+
+```mermaid
+flowchart LR
+    C["Client"] --> API["API and validation"]
+    API --> O["Orchestrator"]
+    O --> D["Data or tool layer"]
+    O --> M["Model service"]
+    D --> O
+    M --> V["Output validation"]
+    V --> API
+    API --> C
+
+    O --> S["State store"]
+    O --> Q["Async queue or human review"]
+    O --> OBS["Logs and metrics"]
+```
+
+For each component, explain:
+
+- Its responsibility.
+- Its inputs and outputs.
+- Whether it owns state.
+- What happens when it fails.
+- Why it is a separate component.
+
+## 4. Identify state and sources of truth
+
+Ask:
+
+- What is durable?
+- What is request-local?
+- What is derived and rebuildable?
+- What is authoritative?
+
+| Data | Storage | Reason |
+|---|---|---|
+| Request status | Transactional database | Durable lifecycle and recovery |
+| Documents | Object store | Durable source material |
+| Embeddings | Vector index | Derived and rebuildable |
+| Session context | Session store or client | Multi-turn continuity |
+| Audit events | Append-only log | Investigation and compliance |
+| Temporary tool results | Request state | Needed only during execution |
+
+A vector database is normally a derived retrieval index, not the source of truth.
+
+## 5. Define policies and failure behavior
+
+Cover:
+
+- Input validation.
+- Authentication and authorization.
+- Timeouts.
+- Retries.
+- Idempotency.
+- Bounded loops.
+- Fallbacks.
+- Human escalation.
+- Sensitive-data handling.
+- Model-output validation.
+
+For sensitive AI actions:
+
+> **The model proposes. Deterministic application code validates permissions and executes the action.**
+
+## 6. Choose one vertical slice to code
+
+Do not implement every architecture box.
+
+Say:
+
+> “I’ll describe the production architecture, but I’ll implement the highest-risk request path through stable interfaces in the remaining time.”
+
+A strong vertical slice includes:
+
+1. Typed request and response.
+2. One orchestration function.
+3. Interfaces for external dependencies.
+4. One real or fake dependency implementation.
+5. One important failure path.
+6. Two or three focused tests.
+7. A runnable demonstration.
+
+Example boundary:
+
+```python
+class Retriever(Protocol):
+    def search(self, query: str) -> list[Evidence]: ...
+
+
+class Generator(Protocol):
+    def answer(
+        self, question: str, evidence: list[Evidence]
+    ) -> str: ...
+
+
+class AnswerService:
+    def answer(self, request: AnswerRequest) -> AnswerResponse:
+        evidence = self.retriever.search(request.question)
+
+        if not evidence:
+            return AnswerResponse(
+                status="insufficient_evidence",
+                answer=None,
+                evidence=[],
+            )
+
+        answer = self.generator.answer(request.question, evidence)
+        return AnswerResponse(
+            status="completed",
+            answer=answer,
+            evidence=evidence,
+        )
+```
+
+The amount of code is less important than whether the code reflects the architectural boundaries.
+
+## Greenfield 60-minute allocation
+
+### Minutes 0–5: clarify
+
+- User, input, and output.
+- Scale and latency.
+- Safety or correctness requirements.
+- Available dependencies.
+
+### Minutes 5–12: contracts and requirements
+
+- Functional requirements.
+- Two or three non-functional requirements.
+- API schema.
+- Critical invariants.
+
+### Minutes 12–20: architecture
+
+- Happy-path data flow.
+- State and source of truth.
+- Failure paths.
+- One major alternative and trade-off.
+
+### Minutes 20–42: implement the vertical slice
+
+- Core types.
+- Interfaces.
+- Orchestration.
+- One important failure case.
+- Avoid UI and infrastructure boilerplate unless required.
+
+### Minutes 42–52: test and demonstrate
+
+Test:
+
+- Happy path.
+- Missing or invalid data.
+- Dependency failure or timeout.
+- A critical invariant such as idempotency or grounding.
+
+### Minutes 52–60: handoff
+
+- Architecture.
+- Implemented slice.
+- Reason for choosing it.
+- Intentionally mocked components.
+- Trade-offs.
+- Production roadmap.
+
+## AI prompts for a greenfield task
+
+### Requirements review
+
+> “Given this prompt and my stated assumptions, identify only requirements that materially alter the architecture. Do not design the solution yet.”
+
+### Architecture review
+
+> “Here is my proposed request flow and component ownership. Identify coupling, missing failure states, and unclear sources of truth. Give alternatives but do not choose for me.”
+
+### Scaffold
+
+> “Create minimal interfaces and data types for this architecture. Do not implement external integrations or add frameworks.”
+
+### Test review
+
+> “List the smallest tests that prove the happy path and critical invariants. Prioritize five or fewer.”
+
+### Final review
+
+> “Review the implementation against my stated architecture. Identify mismatches, unhandled failures, and claims unsupported by the code. Do not edit.”
+
+## If the requested system is too large
+
+Say:
+
+> “The complete production system is larger than the interview. I’ll first establish component boundaries and failure semantics, then implement one end-to-end path. I’ll mock external infrastructure behind interfaces so the prototype remains runnable.”
+
+## Greenfield final handoff
+
+> “I designed the system around ____. The request enters through ____, while ____ owns durable state. I separated ____ because ____. For the coding portion, I implemented the highest-risk vertical slice: ____. The tests cover ____. The prototype assumes ____. At production scale, I would next add ____. The main trade-off is ____.”
+
+Remember:
+
+> **Architecture establishes the boundaries; the code proves one boundary works.**
