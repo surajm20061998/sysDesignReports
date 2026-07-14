@@ -1,0 +1,17 @@
+flowchart TD
+    MC["Model emits tool call with call_id"] --> D["Session dispatches known tool or handoff"]
+    D --> S["Emit local ToolStart when applicable"]
+    S --> I["Invoke tool or handoff"]
+
+    I -->|"Success"| SO["Serialize real result"]
+    SO --> MO["Send model-visible tool output"]
+    MO --> RC["start_response = true"]
+    RC --> LE["Emit local terminal event"]
+
+    I -->|"Ordinary exception or raised timeout"| FP["Apply failure policy"]
+    FP --> SM["Create safe model-facing message"]
+    SM --> FO["Send one failure output for original call_id"]
+    FO --> RR["Allow model response generation to continue"]
+    RR --> AE["Emit local error and apply exception policy"]
+
+    I -->|"Cancellation or shutdown"| C["Preserve cancellation; do not fabricate result"]

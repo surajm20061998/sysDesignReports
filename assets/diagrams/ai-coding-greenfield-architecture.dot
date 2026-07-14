@@ -1,0 +1,24 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.7, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  C [label="Client"];
+  API [label="API + validation", fillcolor="#e8f7ed", color="#43835a"];
+  O [label="Orchestrator", fillcolor="#fff4d6", color="#a77820"];
+  D [label="Data or tool layer"];
+  M [label="Model service"];
+  V [label="Output validation", fillcolor="#e8f7ed", color="#43835a"];
+  S [label="State store", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  Q [label="Async queue or\nhuman review"];
+  OBS [label="Logs + metrics", fillcolor="#f1ecff", color="#7655aa"];
+
+  C -> API -> O;
+  O -> D;
+  O -> M;
+  D -> O;
+  M -> V -> API -> C;
+  O -> S;
+  O -> Q;
+  O -> OBS;
+}

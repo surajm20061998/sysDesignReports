@@ -1,0 +1,21 @@
+flowchart TB
+    subgraph DP["Data plane — milliseconds"]
+        C["Customer request"] --> G["API gateway"]
+        G --> Q["Quota and admission"]
+        Q --> R["Model/tier router"]
+        R --> PQ["Request queue"]
+        PQ --> RS["Request scheduler"]
+        RS --> POOL["Ready replica pool"]
+        POOL --> A["Replica A"]
+        POOL --> B["Replica B"]
+        POOL --> C2["Replica C"]
+    end
+
+    subgraph CP["Control plane — seconds to minutes"]
+        MET["Queue depth, arrival rate, TTFT, GPU utilization"] --> AUTO["Autoscaler"]
+        AUTO -->|"Desired replicas: 3 to 6"| CS["Cluster scheduler"]
+        CS -->|"Allocate compatible GPUs"| NEW["Start replica"]
+        NEW --> LOAD["Load model weights"]
+        LOAD --> HEALTH["Health and readiness check"]
+        HEALTH -->|"Register endpoint"| POOL
+    end

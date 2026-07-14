@@ -161,30 +161,9 @@ Priority should be combined with per-tenant fairness, reserved tier capacity, co
 
 ## High-level architecture
 
-```mermaid
-flowchart LR
-    C["Customer agent"] --> G["API gateway"]
-    G --> Q["Quota and admission service"]
-    Q --> R["Tier-aware request router"]
+![Multi-tenant inference platform architecture](assets/diagrams/mock-3-inference-high-level.jpg)
 
-    R --> P["Model and tier serving pool"]
-    P --> A["Serving replica A"]
-    P --> B["Serving replica B"]
-    P --> D["Serving replica C"]
-
-    A --> S["Streaming response"]
-    B --> S
-    D --> S
-    S --> C
-
-    M["Metrics and queue signals"] --> AS["Autoscaler"]
-    AS --> CS["Cluster scheduler"]
-    CS --> P
-
-    Q --> U["Usage event stream"]
-    U --> BILL["Billing and analytics"]
-    BILL --> DASH["Customer dashboard"]
-```
+[Diagram source](assets/diagrams/mock-3-inference-high-level.mmd)
 
 ## Request path
 
@@ -310,29 +289,9 @@ Trade-off:
 
 ## Data plane and control plane
 
-```mermaid
-flowchart TB
-    subgraph DP["Data plane — milliseconds"]
-        C["Customer request"] --> G["API gateway"]
-        G --> Q["Quota and admission"]
-        Q --> R["Model/tier router"]
-        R --> PQ["Request queue"]
-        PQ --> RS["Request scheduler"]
-        RS --> POOL["Ready replica pool"]
-        POOL --> A["Replica A"]
-        POOL --> B["Replica B"]
-        POOL --> C2["Replica C"]
-    end
+![Inference data plane and control plane](assets/diagrams/mock-3-data-control-planes.jpg)
 
-    subgraph CP["Control plane — seconds to minutes"]
-        MET["Queue depth, arrival rate, TTFT, GPU utilization"] --> AUTO["Autoscaler"]
-        AUTO -->|"Desired replicas: 3 to 6"| CS["Cluster scheduler"]
-        CS -->|"Allocate compatible GPUs"| NEW["Start replica"]
-        NEW --> LOAD["Load model weights"]
-        LOAD --> HEALTH["Health and readiness check"]
-        HEALTH -->|"Register endpoint"| POOL
-    end
-```
+[Diagram source](assets/diagrams/mock-3-data-control-planes.mmd)
 
 ### Data plane
 
@@ -493,22 +452,9 @@ Accepting a request that will inevitably time out is worse than rejecting it ear
 
 ## Autoscaling control-loop diagram
 
-```mermaid
-flowchart LR
-    D["Measure demand"] --> E["Estimate required replicas"]
-    E --> C{"Enough ready capacity?"}
-    C -->|"No"| UP["Request additional replicas"]
-    UP --> LOAD["Allocate GPUs and load model"]
-    LOAD --> READY["Register ready replica"]
-    READY --> D
+![Autoscaling control loop](assets/diagrams/mock-3-autoscaling-loop.jpg)
 
-    C -->|"Yes, with prolonged excess"| DOWN["Drain excess replica"]
-    DOWN --> FREE["Release GPUs"]
-    FREE --> D
-
-    C -->|"Capacity cannot arrive before SLO"| AC["Queue briefly or reject"]
-    AC --> D
-```
+[Diagram source](assets/diagrams/mock-3-autoscaling-loop.mmd)
 
 ## Example tier-specific autoscaling policies
 
@@ -673,4 +619,3 @@ Practice explaining the design again without reading the document:
 8. Explain how the system behaves when all GPUs are occupied and a 10× burst arrives.
 
 The goal is not to memorize every component. The goal is to internalize the two-loop mental model and reconstruct the details from first principles.
-

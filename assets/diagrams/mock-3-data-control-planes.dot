@@ -1,0 +1,49 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad=0.35, nodesep=0.28, ranksep=0.55, dpi=180, compound=true];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=9.5, margin="0.13,0.08"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  subgraph cluster_dp {
+    label="Data plane — milliseconds";
+    color="#4f6b95";
+    style="rounded,filled";
+    fillcolor="#f4f8ff";
+    fontname="Arial Bold";
+    fontsize=12;
+    C [label="Customer request"];
+    G [label="API gateway"];
+    Q [label="Quota + admission"];
+    R [label="Model/tier router"];
+    PQ [label="Request queue"];
+    RS [label="Request scheduler"];
+    POOL [label="Ready replica pool", fillcolor="#fff4d6", color="#a77820"];
+    A [label="Replica A"];
+    B [label="Replica B"];
+    C2 [label="Replica C"];
+    C -> G -> Q -> R -> PQ -> RS -> POOL;
+    POOL -> A;
+    POOL -> B;
+    POOL -> C2;
+  }
+
+  subgraph cluster_cp {
+    label="Control plane — seconds to minutes";
+    color="#7655aa";
+    style="rounded,filled";
+    fillcolor="#faf7ff";
+    fontname="Arial Bold";
+    fontsize=12;
+    MET [label="Queue depth, arrival rate,\nTTFT, GPU utilization"];
+    AUTO [label="Autoscaler"];
+    CS [label="Cluster scheduler"];
+    NEW [label="Start replica"];
+    LOAD [label="Load model weights"];
+    HEALTH [label="Health + readiness check"];
+    MET -> AUTO;
+    AUTO -> CS [label="Desired replicas: 3 to 6"];
+    CS -> NEW [label="Allocate compatible GPUs"];
+    NEW -> LOAD -> HEALTH;
+  }
+
+  HEALTH -> POOL [label="Register endpoint", color="#7655aa"];
+}

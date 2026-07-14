@@ -160,25 +160,9 @@ When debugging an agent or realtime tool failure, separate three contracts:
 2. **Protocol contract:** Did the model receive one terminal output associated with its original `call_id`?
 3. **Application contract:** Did local observers receive the correct events, logs, state changes, and exception behavior?
 
-```mermaid
-flowchart TD
-    MC["Model emits tool call with call_id"] --> D["Session dispatches known tool or handoff"]
-    D --> S["Emit local ToolStart when applicable"]
-    S --> I["Invoke tool or handoff"]
+![Realtime tool failure recovery flow](assets/diagrams/ai-coding-round-1-realtime-tool-failure.jpg)
 
-    I -->|"Success"| SO["Serialize real result"]
-    SO --> MO["Send model-visible tool output"]
-    MO --> RC["start_response = true"]
-    RC --> LE["Emit local terminal event"]
-
-    I -->|"Ordinary exception or raised timeout"| FP["Apply failure policy"]
-    FP --> SM["Create safe model-facing message"]
-    SM --> FO["Send one failure output for original call_id"]
-    FO --> RR["Allow model response generation to continue"]
-    RR --> AE["Emit local error and apply exception policy"]
-
-    I -->|"Cancellation or shutdown"| C["Preserve cancellation; do not fabricate result"]
-```
+[Diagram source](assets/diagrams/ai-coding-round-1-realtime-tool-failure.mmd)
 
 For every branch, ask:
 
@@ -405,4 +389,3 @@ Repeat this exercise with a fresh defect while imposing these constraints:
 6. Finish with a compatibility table: old behavior, new behavior, reason, risk.
 
 The technical ability is present. The next goal is making your ownership of the reasoning unmistakable.
-

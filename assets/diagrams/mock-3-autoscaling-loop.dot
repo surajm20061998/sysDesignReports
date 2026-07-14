@@ -1,0 +1,23 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.65, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  D [label="Measure demand"];
+  E [label="Estimate required\nreplicas"];
+  C [label="Enough ready\ncapacity?", shape=diamond, fillcolor="#fff4d6", color="#a77820"];
+  UP [label="Request additional\nreplicas"];
+  LOAD [label="Allocate GPUs +\nload model"];
+  READY [label="Register ready\nreplica", fillcolor="#e8f7ed", color="#43835a"];
+  DOWN [label="Drain excess\nreplica"];
+  FREE [label="Release GPUs"];
+  AC [label="Queue briefly\nor reject", fillcolor="#fff0f0", color="#a95858"];
+
+  D -> E -> C;
+  C -> UP [label="No"];
+  UP -> LOAD -> READY -> D;
+  C -> DOWN [label="Yes, with\nprolonged excess"];
+  DOWN -> FREE -> D;
+  C -> AC [label="Capacity cannot arrive\nbefore SLO"];
+  AC -> D;
+}

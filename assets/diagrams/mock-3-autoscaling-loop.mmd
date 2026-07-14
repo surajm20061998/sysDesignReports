@@ -1,0 +1,14 @@
+flowchart LR
+    D["Measure demand"] --> E["Estimate required replicas"]
+    E --> C{"Enough ready capacity?"}
+    C -->|"No"| UP["Request additional replicas"]
+    UP --> LOAD["Allocate GPUs and load model"]
+    LOAD --> READY["Register ready replica"]
+    READY --> D
+
+    C -->|"Yes, with prolonged excess"| DOWN["Drain excess replica"]
+    DOWN --> FREE["Release GPUs"]
+    FREE --> D
+
+    C -->|"Capacity cannot arrive before SLO"| AC["Queue briefly or reject"]
+    AC --> D

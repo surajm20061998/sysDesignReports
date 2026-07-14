@@ -1,0 +1,15 @@
+flowchart LR
+    U["User or engineer"] --> API["API gateway / submission API"]
+    API --> ADMIT["Validation, authorization, quota, admission"]
+    ADMIT --> ORCH["Router / orchestrator / workflow"]
+    ORCH --> WORK["Workers or serving replicas"]
+    WORK --> RESULT["Result, stream, or artifact"]
+    RESULT --> U
+
+    ORCH --> AUTH["Authoritative services and stores"]
+    ORCH --> DERIVED["Derived index or cache"]
+    ORCH --> QUEUE["Durable or bounded queue"]
+
+    WORK --> EVENTS["Metrics and event stream"]
+    EVENTS --> CONTROL["Autoscaling, aggregation, or release control"]
+    CONTROL --> WORK

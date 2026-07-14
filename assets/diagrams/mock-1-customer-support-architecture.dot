@@ -1,0 +1,41 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.7, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  U [label="Customer"];
+  GW [label="API Gateway +\nAuthentication", fillcolor="#e8f7ed", color="#43835a"];
+  O [label="Conversation\nOrchestrator", fillcolor="#fff4d6", color="#a77820"];
+  R [label="Policy Retriever"];
+  IDX [label="Vector + lexical\npolicy index", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  CMS [label="Versioned CMS /\nDocuments"];
+  ING [label="Ingestion Pipeline"];
+  LLM [label="LLM: untrusted\nplanner", fillcolor="#fff0f0", color="#a95858"];
+  TG [label="Tool Gateway", fillcolor="#fff4d6", color="#a77820"];
+  PA [label="Policy and\nAuthorization Service", fillcolor="#e8f7ed", color="#43835a"];
+  ORD [label="Order Service"];
+  REF [label="Refund Service"];
+  LEDGER [label="Transactional\nLedger", shape=cylinder, fillcolor="#e8f7ed", color="#43835a"];
+  CS [label="Conversation Store", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  HQ [label="Human Queue"];
+  AUD [label="Append-only\nAudit Log", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+
+  U -> GW;
+  GW -> O [label="Trusted principal: C-42"];
+  O -> R;
+  R -> IDX;
+  CMS -> ING -> IDX;
+  O -> LLM;
+  LLM -> TG [label="Proposed typed action"];
+  TG -> PA [label="Allowlist + schema validation"];
+  PA -> ORD [label="Check ownership + state"];
+  PA -> REF [label="Approved action + idempotency key"];
+  REF -> LEDGER;
+  TG -> O [label="Tool result"];
+  O -> CS;
+  O -> HQ;
+  GW -> AUD;
+  TG -> AUD;
+  PA -> AUD;
+  REF -> AUD;
+}

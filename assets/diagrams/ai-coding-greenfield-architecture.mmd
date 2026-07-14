@@ -1,0 +1,13 @@
+flowchart LR
+    C["Client"] --> API["API and validation"]
+    API --> O["Orchestrator"]
+    O --> D["Data or tool layer"]
+    O --> M["Model service"]
+    D --> O
+    M --> V["Output validation"]
+    V --> API
+    API --> C
+
+    O --> S["State store"]
+    O --> Q["Async queue or human review"]
+    O --> OBS["Logs and metrics"]

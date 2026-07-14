@@ -1,0 +1,23 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.7, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  U [label="User or engineer"];
+  API [label="API gateway /\nsubmission API", fillcolor="#e8f7ed", color="#43835a"];
+  ADMIT [label="Validation, authorization,\nquota, admission", fillcolor="#e8f7ed", color="#43835a"];
+  ORCH [label="Router / orchestrator /\nworkflow", fillcolor="#fff4d6", color="#a77820"];
+  WORK [label="Workers or\nserving replicas"];
+  RESULT [label="Result, stream,\nor artifact", fillcolor="#e8f7ed", color="#43835a"];
+  AUTH [label="Authoritative services\nand stores", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  DERIVED [label="Derived index\nor cache", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  QUEUE [label="Durable or\nbounded queue"];
+  EVENTS [label="Metrics and\nevent stream", fillcolor="#f1ecff", color="#7655aa"];
+  CONTROL [label="Autoscaling, aggregation,\nor release control"];
+
+  U -> API -> ADMIT -> ORCH -> WORK -> RESULT -> U;
+  ORCH -> AUTH;
+  ORCH -> DERIVED;
+  ORCH -> QUEUE;
+  WORK -> EVENTS -> CONTROL -> WORK;
+}

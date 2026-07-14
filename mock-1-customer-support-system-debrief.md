@@ -45,32 +45,9 @@ The system needs write tools, but access to them must go through deterministic v
 
 ## Correct high-level architecture
 
-```mermaid
-flowchart LR
-    U["Customer"] --> GW["API Gateway + Authentication"]
-    GW -->|"Trusted principal: C-42"| O["Conversation Orchestrator"]
+![Customer support agent architecture](assets/diagrams/mock-1-customer-support-architecture.jpg)
 
-    O --> R["Policy Retriever"]
-    R --> IDX[("Vector + lexical policy index")]
-    CMS["Versioned CMS / Documents"] --> ING["Ingestion Pipeline"] --> IDX
-
-    O --> LLM["LLM: untrusted planner"]
-    LLM -->|"Proposed typed action"| TG["Tool Gateway"]
-
-    TG -->|"Allowlist + schema validation"| PA["Policy and Authorization Service"]
-    PA -->|"Check ownership and current state"| ORD["Order Service"]
-    PA -->|"Approved action + idempotency key"| REF["Refund Service"]
-    REF --> LEDGER[("Transactional Ledger")]
-
-    TG -->|"Tool result"| O
-    O --> CS[("Conversation Store")]
-    O --> HQ["Human Queue"]
-
-    GW --> AUD[("Append-only Audit Log")]
-    TG --> AUD
-    PA --> AUD
-    REF --> AUD
-```
+[Diagram source](assets/diagrams/mock-1-customer-support-architecture.mmd)
 
 1. API gateway and authentication service validate the signed session and derive the trusted principal.
 2. A conversation service loads session state and gives the orchestrator a server-side customer ID.

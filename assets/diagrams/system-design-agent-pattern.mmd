@@ -1,0 +1,17 @@
+flowchart LR
+    U["User"] --> GW["Gateway + authentication"]
+    GW --> O["Conversation orchestrator"]
+    O --> LLM["LLM: untrusted planner"]
+    O --> R["Policy retriever"]
+    R --> IDX[("Derived policy index")]
+
+    LLM -->|"Typed proposed action"| TG["Tool gateway"]
+    TG --> PA["Authorization + policy service"]
+    PA --> SYS["Authoritative customer/order service"]
+    PA --> ACT["Transactional action service"]
+    ACT --> LEDGER[("Idempotency/action ledger")]
+
+    TG --> O
+    O --> CASE[("Conversation/case store")]
+    O --> HUMAN["Human queue"]
+    TG --> AUDIT[("Append-only audit log")]

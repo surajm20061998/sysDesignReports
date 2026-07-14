@@ -1,0 +1,32 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.7, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  C [label="Customer agent"];
+  G [label="API gateway", fillcolor="#e8f7ed", color="#43835a"];
+  Q [label="Quota + admission\nservice", fillcolor="#e8f7ed", color="#43835a"];
+  R [label="Tier-aware\nrequest router", fillcolor="#fff4d6", color="#a77820"];
+  P [label="Model + tier\nserving pool", fillcolor="#fff4d6", color="#a77820"];
+  A [label="Serving replica A"];
+  B [label="Serving replica B"];
+  D [label="Serving replica C"];
+  S [label="Streaming response", fillcolor="#e8f7ed", color="#43835a"];
+  M [label="Metrics +\nqueue signals", fillcolor="#f1ecff", color="#7655aa"];
+  AS [label="Autoscaler"];
+  CS [label="Cluster scheduler"];
+  U [label="Usage event stream", fillcolor="#f1ecff", color="#7655aa"];
+  BILL [label="Billing + analytics"];
+  DASH [label="Customer dashboard"];
+
+  C -> G -> Q -> R -> P;
+  P -> A;
+  P -> B;
+  P -> D;
+  A -> S;
+  B -> S;
+  D -> S;
+  S -> C;
+  M -> AS -> CS -> P;
+  Q -> U -> BILL -> DASH;
+}

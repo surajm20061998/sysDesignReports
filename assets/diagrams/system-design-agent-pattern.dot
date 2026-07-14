@@ -1,0 +1,32 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.7, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=10, margin="0.14,0.09"];
+  edge [color="#5c6673", fontname="Arial", fontsize=8, arrowsize=0.7];
+
+  U [label="User"];
+  GW [label="Gateway +\nauthentication", fillcolor="#e8f7ed", color="#43835a"];
+  O [label="Conversation\norchestrator", fillcolor="#fff4d6", color="#a77820"];
+  LLM [label="LLM: untrusted\nplanner", fillcolor="#fff0f0", color="#a95858"];
+  R [label="Policy retriever"];
+  IDX [label="Derived policy\nindex", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  TG [label="Tool gateway", fillcolor="#fff4d6", color="#a77820"];
+  PA [label="Authorization +\npolicy service", fillcolor="#e8f7ed", color="#43835a"];
+  SYS [label="Authoritative customer /\norder service"];
+  ACT [label="Transactional\naction service"];
+  LEDGER [label="Idempotency /\naction ledger", shape=cylinder, fillcolor="#e8f7ed", color="#43835a"];
+  CASE [label="Conversation /\ncase store", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  HUMAN [label="Human queue"];
+  AUDIT [label="Append-only\naudit log", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+
+  U -> GW -> O;
+  O -> LLM;
+  O -> R -> IDX;
+  LLM -> TG [label="Typed proposed action"];
+  TG -> PA;
+  PA -> SYS;
+  PA -> ACT -> LEDGER;
+  TG -> O;
+  O -> CASE;
+  O -> HUMAN;
+  TG -> AUDIT;
+}

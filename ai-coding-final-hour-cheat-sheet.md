@@ -353,21 +353,9 @@ Client
 
 Add components only when they have a clear responsibility:
 
-```mermaid
-flowchart LR
-    C["Client"] --> API["API and validation"]
-    API --> O["Orchestrator"]
-    O --> D["Data or tool layer"]
-    O --> M["Model service"]
-    D --> O
-    M --> V["Output validation"]
-    V --> API
-    API --> C
+![Greenfield AI solution architecture](assets/diagrams/ai-coding-greenfield-architecture.jpg)
 
-    O --> S["State store"]
-    O --> Q["Async queue or human review"]
-    O --> OBS["Logs and metrics"]
-```
+[Diagram source](assets/diagrams/ai-coding-greenfield-architecture.mmd)
 
 For each component, explain:
 

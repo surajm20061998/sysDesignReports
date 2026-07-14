@@ -1,0 +1,27 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=11, margin="0.15,0.10"];
+  edge [color="#5c6673", fontname="Arial", fontsize=9, arrowsize=0.75];
+
+  MC [label="Model emits tool call\nwith call_id"];
+  D [label="Session dispatches known\ntool or handoff"];
+  S [label="Emit local ToolStart\nwhen applicable"];
+  I [label="Invoke tool or handoff", fillcolor="#fff4d6", color="#a77820"];
+  SO [label="Serialize real result", fillcolor="#e8f7ed", color="#43835a"];
+  MO [label="Send model-visible\ntool output", fillcolor="#e8f7ed", color="#43835a"];
+  RC [label="start_response = true", fillcolor="#e8f7ed", color="#43835a"];
+  LE [label="Emit local terminal event", fillcolor="#e8f7ed", color="#43835a"];
+  FP [label="Apply failure policy", fillcolor="#fff0f0", color="#a95858"];
+  SM [label="Create safe model-facing\nmessage", fillcolor="#fff0f0", color="#a95858"];
+  FO [label="Send one failure output\nfor original call_id", fillcolor="#fff0f0", color="#a95858"];
+  RR [label="Allow model response\ngeneration to continue", fillcolor="#fff0f0", color="#a95858"];
+  AE [label="Emit local error and apply\nexception policy", fillcolor="#fff0f0", color="#a95858"];
+  C [label="Preserve cancellation;\ndo not fabricate result", fillcolor="#f1ecff", color="#7655aa"];
+
+  MC -> D -> S -> I;
+  I -> SO [label="Success"];
+  SO -> MO -> RC -> LE;
+  I -> FP [label="Ordinary exception\nor raised timeout"];
+  FP -> SM -> FO -> RR -> AE;
+  I -> C [label="Cancellation\nor shutdown"];
+}

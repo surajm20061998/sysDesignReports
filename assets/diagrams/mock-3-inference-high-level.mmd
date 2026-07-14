@@ -1,0 +1,22 @@
+flowchart LR
+    C["Customer agent"] --> G["API gateway"]
+    G --> Q["Quota and admission service"]
+    Q --> R["Tier-aware request router"]
+
+    R --> P["Model and tier serving pool"]
+    P --> A["Serving replica A"]
+    P --> B["Serving replica B"]
+    P --> D["Serving replica C"]
+
+    A --> S["Streaming response"]
+    B --> S
+    D --> S
+    S --> C
+
+    M["Metrics and queue signals"] --> AS["Autoscaler"]
+    AS --> CS["Cluster scheduler"]
+    CS --> P
+
+    Q --> U["Usage event stream"]
+    U --> BILL["Billing and analytics"]
+    BILL --> DASH["Customer dashboard"]

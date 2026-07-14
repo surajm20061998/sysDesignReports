@@ -1,0 +1,58 @@
+digraph G {
+  graph [rankdir=LR, bgcolor="white", pad=0.4, nodesep=0.28, ranksep=0.6, dpi=180];
+  node [shape=box, style="rounded,filled", fillcolor="#edf4ff", color="#4f6b95", fontname="Arial", fontsize=9, margin="0.12,0.08"];
+  edge [color="#5c6673", fontname="Arial", fontsize=7.5, arrowsize=0.65];
+
+  ENG [label="Model engineer"];
+  API [label="Evaluation API /\nDashboard", fillcolor="#e8f7ed", color="#43835a"];
+  META [label="Metadata DB", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  WF [label="Workflow\nOrchestrator", fillcolor="#fff4d6", color="#a77820"];
+  REG [label="Model + Config\nRegistry"];
+  SUITE [label="Versioned Eval\nSuite Registry"];
+  POLICY [label="Versioned Release\nPolicy"];
+  PLAN [label="Matrix Planner\n+ Sharder"];
+  Q [label="Priority Job Queue"];
+  SCHED [label="GPU-aware\nScheduler", fillcolor="#fff4d6", color="#a77820"];
+  H100 [label="H100 / H200\nWorkers"];
+  A100 [label="A100 Workers"];
+  RUN [label="Isolated Inference\nRunner", fillcolor="#e8f7ed", color="#43835a"];
+  OUT [label="Output Artifact\nStore", shape=cylinder, fillcolor="#f1ecff", color="#7655aa"];
+  EVAL [label="Evaluator Pipeline", fillcolor="#fff4d6", color="#a77820"];
+  DET [label="Deterministic Checks"];
+  CLS [label="Safety Classifiers"];
+  JUDGE [label="Calibrated LLM\nJudges"];
+  HUMAN [label="Human Review\nQueue", fillcolor="#fff0f0", color="#a95858"];
+  AGG [label="Metrics Aggregator"];
+  BASE [label="Baseline Comparator"];
+  GATE [label="Release Gate", fillcolor="#fff4d6", color="#a77820"];
+  REPORT [label="Decision Report +\nDebug Artifacts"];
+  RELEASE [label="Model Release", fillcolor="#e8f7ed", color="#43835a"];
+  BLOCK [label="Block + Investigate", fillcolor="#fff0f0", color="#a95858"];
+
+  ENG -> API;
+  API -> META;
+  API -> WF;
+  REG -> WF;
+  SUITE -> WF;
+  POLICY -> WF;
+  WF -> PLAN -> Q -> SCHED;
+  SCHED -> H100;
+  SCHED -> A100;
+  H100 -> RUN;
+  A100 -> RUN;
+  RUN -> OUT;
+  RUN -> META;
+  OUT -> EVAL;
+  EVAL -> DET;
+  EVAL -> CLS;
+  EVAL -> JUDGE;
+  DET -> AGG;
+  CLS -> AGG;
+  JUDGE -> AGG;
+  JUDGE -> HUMAN [label="Disagreement /\nlow confidence"];
+  HUMAN -> AGG;
+  AGG -> BASE -> GATE;
+  GATE -> REPORT;
+  GATE -> RELEASE [label="Pass"];
+  GATE -> BLOCK [label="Fail"];
+}

@@ -61,45 +61,9 @@ This is mostly a batch-processing and workflow-orchestration system with GPU wor
 
 ## Correct high-level architecture
 
-```mermaid
-flowchart LR
-    ENG["Model engineer"] --> API["Evaluation API / Dashboard"]
-    API --> META[("Metadata DB")]
-    API --> WF["Workflow Orchestrator"]
+![Continuous model safety regression platform architecture](assets/diagrams/mock-2-safety-regression-architecture.jpg)
 
-    REG["Model and Config Registry"] --> WF
-    SUITE["Versioned Eval Suite Registry"] --> WF
-    POLICY["Versioned Release Policy"] --> WF
-
-    WF --> PLAN["Matrix Planner and Sharder"]
-    PLAN --> Q["Priority Job Queue"]
-    Q --> SCHED["GPU-aware Scheduler"]
-
-    SCHED --> H100["H100 / H200 Workers"]
-    SCHED --> A100["A100 Workers"]
-    H100 --> RUN["Isolated Inference Runner"]
-    A100 --> RUN
-
-    RUN --> OUT[("Output Artifact Store")]
-    RUN --> META
-    OUT --> EVAL["Evaluator Pipeline"]
-
-    EVAL --> DET["Deterministic Checks"]
-    EVAL --> CLS["Safety Classifiers"]
-    EVAL --> JUDGE["Calibrated LLM Judges"]
-    DET --> AGG["Metrics Aggregator"]
-    CLS --> AGG
-    JUDGE --> AGG
-
-    JUDGE -->|"Disagreement / low confidence"| HUMAN["Human Review Queue"]
-    HUMAN --> AGG
-
-    AGG --> BASE["Baseline Comparator"]
-    BASE --> GATE["Release Gate"]
-    GATE --> REPORT["Decision Report and Debug Artifacts"]
-    GATE -->|"Pass"| RELEASE["Model Release"]
-    GATE -->|"Fail"| BLOCK["Block and Investigate"]
-```
+[Diagram source](assets/diagrams/mock-2-safety-regression-architecture.mmd)
 
 ## Four-plane decomposition
 
