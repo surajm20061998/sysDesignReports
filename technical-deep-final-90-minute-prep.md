@@ -1,4 +1,4 @@
-# Technical Deep Dive — Final 90-Minute Preparation
+# Technical Deep Dive — Final 60-Minute Preparation
 
 ## Round structure
 
@@ -8,48 +8,81 @@ The 45-minute interview has three goals:
 2. **Past project:** Can you go deeply enough to demonstrate real technical understanding, judgment, and learning?
 3. **About you:** Is there a coherent connection between your background, interests, and approach to building systems?
 
-Your objective is not to recite every implementation detail. For each topic, consistently communicate:
+Your objective is not to recite every implementation detail. For eac h topic, consistently communicate:
 
 > **Problem → constraints → design → evidence → trade-off → limitation → lesson**
 
-## Use the next 90 minutes
+## Last-hour rehearsal card
 
-### Minutes 0–15: rehearse the two opening pitches
+Read this section first. Use the detailed sections only to repair a weak answer.
+
+| Topic | Core thesis | Best evidence | Limitation to volunteer | Memorable story |
+|---|---|---|---|---|
+| Take-home | One agent can interleave SQL and filing retrieval, while exposing evidence | 10/10 public and 14/14 stress suite with required-modality coverage | Small, non-blind sets; no claim-level grounding; no reranker ablation | Missing MD&A, hedging error, or broken gold answer |
+| FlashAttention2 | Online softmax is the common recurrence behind tiled prefill, split decode, streaming, and quantized regions | 433 BF16 TFLOP/s prefill; split-KV up to 13.6× over the naive path | Decode loses to SDPA in 70/72 cases; streaming eval is provisional | Wrong profiler target or oversplitting short contexts |
+| About you | Distributed-systems discipline applied to ML training, inference, evaluation, and customer applications | Oracle/Inture production work plus NYU ML-systems projects | Recent ML work is project/research-heavy; AI assisted implementation substantially | Measurement changed your conclusion rather than merely confirming it |
+
+### Expected 45-minute pacing
+
+- **Take-home:** approximately 17–19 minutes.
+- **FlashAttention2:** approximately 15–17 minutes.
+- **Background and building philosophy:** approximately 6–8 minutes.
+- **Your questions:** approximately 2–3 minutes.
+
+### The five answers that must be ready
+
+1. Two-minute take-home overview.
+2. Why agent-directed routing, and what does not enforce grounding?
+3. Two-minute FlashAttention2 overview, including the negative decode result.
+4. Online-softmax derivation and prefill-versus-decode explanation.
+5. What AI generated, what you personally owned, and how you verified it.
+
+### Answer structure
+
+Use:
+
+> **Decision → reason → rejected alternative → cost → evidence → limitation**
+
+Lead with the conclusion. Stop after 60–90 seconds unless the interviewer asks for the next layer.
+
+## Use the next 60 minutes
+
+### Minutes 0–10: rehearse the two opening pitches
 
 - Take-home: 90 seconds.
 - FlashAttention2: 90 seconds.
 - Record yourself once if possible.
 
-### Minutes 15–35: take-home defense
+### Minutes 10–23: take-home defense
 
 - Architecture and request path.
 - Routing decision.
 - Retrieval stack.
 - Evaluation corrections.
-- Production/private deployment.
+- One debugging story.
 
-### Minutes 35–60: FlashAttention2 defense
+### Minutes 23–40: FlashAttention2 defense
 
 - Derive online softmax on paper.
 - Prefill versus decode.
 - Correctness strategy.
 - Results and limitations.
-- Two debugging stories.
+- One debugging story.
 
-### Minutes 60–72: personal story
+### Minutes 40–49: personal story
 
 - Two-minute background.
 - Why this role.
 - How you build systems.
 - How you use AI tools.
 
-### Minutes 72–82: rapid-fire practice
+### Minutes 49–55: rapid-fire practice
 
-Answer the questions at the end aloud, in 30–60 seconds each.
+Answer five questions from the end aloud, in 30–60 seconds each.
 
-### Minutes 82–90: stop
+### Minutes 55–60: stop
 
-Hydrate, close unnecessary applications, and reset. Do not learn new topics in the final eight minutes.
+Hydrate, close unnecessary applications, and reset. Do not learn a new topic in the final five minutes.
 
 ---
 
@@ -128,6 +161,43 @@ BM25 and cosine scores are not calibrated to the same scale. Reciprocal rank fus
 
 A cross-encoder sees query and candidate together and can improve final ordering, but the project did not run a proper reranker ablation. Do not claim that the reranker caused the observed accuracy.
 
+### How the top 25 becomes the top 8
+
+BM25 and dense retrieval are candidate generators. RRF produces 25 high-recall candidates without pretending that BM25 and cosine scores are calibrated.
+
+The reranking service receives:
+
+- The original user query.
+- Each of the 25 candidate chunk texts, truncated to 4,000 characters in this implementation.
+- `top_n=8`.
+
+The cross-encoder jointly evaluates each query–chunk pair and returns candidate indices in relevance order. The application maps those indices back to the original chunks and sends the top eight to the agent.
+
+```text
+438 chunks
+  → BM25 + dense candidate ranks
+  → RRF top 25 for recall
+  → joint query/chunk scoring
+  → top 8 for precision and smaller model context
+```
+
+Advantage:
+
+- It can distinguish a passage that merely discusses a similar topic from one containing the correct company, year, metric, or explanation.
+- The expensive joint model scores only 25 candidates instead of the entire corpus.
+- Fewer irrelevant chunks reduce context size and distraction during synthesis.
+
+Trade-off:
+
+- One more network/model call, increasing latency and cost.
+- Prefix truncation can hide relevant text near the end of an oversized chunk.
+- On failure, the code falls back to the RRF ordering.
+- Without a controlled ablation, this remains a justified design hypothesis rather than a measured improvement claim.
+
+### 30-second reranker answer
+
+> “BM25 and dense retrieval maximize recall, while the cross-encoder reranker improves precision. It jointly scores the query against each of the 25 RRF candidates and returns the eight most relevant chunks. This gives the agent cleaner, smaller context without applying an expensive joint model to all 438 chunks. The cost is another model call and added latency, and I would need an RRF-only versus RRF-plus-reranking ablation to quantify its contribution.”
+
 ### Proper ablation
 
 Compare:
@@ -172,6 +242,15 @@ Measure Recall@8, MRR/nDCG@8, end-to-end answer quality, retrieval latency, tota
 - Add answer-mutation tests and wrong-gold negative controls.
 - Build a larger human-labeled evidence and answer set.
 - Freeze evaluation questions before further prompt tuning.
+
+### Claim discipline
+
+| Safe claim | Evidence | Do not inflate it into |
+|---|---|---|
+| “The complete pipeline passed every question in two small suites.” | Stored answers and evaluator outputs | “The system is 100% accurate.” |
+| “Required tool modalities were covered on all recorded questions.” | Tool evidence versus declared modalities | “Every final claim was grounded.” |
+| “The stress suite found bugs missed by the public set.” | Hedging and gold-answer incidents | “The stress suite proves no overfitting.” |
+| “Hybrid plus reranking is architecturally motivated.” | Known lexical/semantic failure modes | “The reranker measurably improved accuracy.” |
 
 ## Strong debugging stories
 
@@ -236,7 +315,7 @@ Production needs:
 
 ## Honest 90-second pitch
 
-> “The project started from an RL systems problem: policy-model generation was slowing rollout collection, which made me want to understand where LLM inference time and memory actually go. I built an experimental Triton attention library covering FlashAttention-2 prefill and backward, Flash-Decoding with GQA/MQA, StreamingLLM-style bounded caches, and KIVI-style quantized KV caches.
+> “The project started from an RL systems problem: policy-model generation was slowing rollout collection, which made me want to understand where LLM inference time and memory actually go. With substantial AI assistance on implementation, I developed and evaluated an experimental Triton attention library covering FlashAttention-2 prefill and backward, Flash-Decoding with GQA/MQA, StreamingLLM-style bounded caches, and KIVI-style quantized KV caches.
 >
 > “The unifying technical idea is the online-softmax state `(m, l, acc)`. FlashAttention tiles that recurrence across KV blocks, Flash-Decoding partitions it across KV splits, streaming attention runs it over a retained token set, and quantized decode merges quantized and full-precision regions through the same recurrence.
 >
@@ -251,6 +330,25 @@ Be completely honest. Use only claims that reflect what you personally did.
 > “I used AI heavily for implementation, so I do not claim that I manually authored every Triton line. My contribution was selecting the problem, studying the papers, directing the architecture and experiments, validating generated implementations, interpreting benchmark and profiler results, and deciding which claims the evidence supported. The standard I hold is that I should be able to derive the central algorithms, explain the design decisions, identify limitations, and reproduce or challenge the measurements.”
 
 If some part of that is not personally true, remove it. Never turn heavy AI assistance into a false hand-authorship claim.
+
+### Ownership audit before the interview
+
+For each statement, decide whether it is personally true. Do not rely on what the repository documentation says.
+
+- I chose the original problem and project scope.
+- I read and understood the central papers.
+- I specified the correctness invariants or acceptance criteria.
+- I personally reviewed the generated kernel logic.
+- I personally ran or supervised the A100/H100 experiments.
+- I noticed suspicious measurements and requested or performed the investigation.
+- I decided which claims were supported, provisional, or unsupported.
+- I can reproduce the central derivations without reading generated notes.
+
+If only the first two are true, say so. The interviewer may still value the learning project, but present it as a guided, AI-assisted investigation rather than independently authored systems work.
+
+### If challenged directly
+
+> “AI produced much of the code, so I would not use manual authorship as evidence of my skill. The evidence I can offer is the part I can personally reconstruct and defend: the motivation, the paper-level mechanism, the experiment interpretation, and the limitations. Where I cannot defend an implementation detail, I’ll say that rather than imply ownership.”
 
 ## Online-softmax derivation
 
@@ -334,6 +432,27 @@ This is why the result should be invariant to the number of KV splits, up to flo
 ### GQA tensor-core path
 
 Multiple query heads share one KV head. Stack the sharing query heads into the matrix `M` dimension so QK and PV become tensor-core-compatible matrix multiplies. The KV tile is loaded once for several query heads.
+
+### Why MQA can increase perplexity
+
+Separate kernel correctness from model architecture:
+
+- In MHA, every query head has its own key and value projections.
+- In MQA, query heads remain distinct but all share one key head and one value head.
+- Different queries can still produce different attention weights, but they retrieve from the same shared key/value representation.
+- This reduces KV-cache memory and decode bandwidth, but also reduces head-level representational capacity and specialization.
+- If the model cannot compress the needed information into the shared KV space, next-token cross-entropy rises and perplexity increases.
+
+Important nuance:
+
+- A model trained with MQA can adapt and may lose little quality.
+- Collapsing a trained MHA model into MQA after training is more likely to be lossy.
+- A correct MQA serving kernel should match the same MQA model’s reference output. Kernel mismatch is a correctness bug, not an expected MQA quality trade-off.
+- GQA is the compromise: several query heads share each KV head, retaining more capacity than MQA while saving substantial KV memory and bandwidth.
+
+### 30-second MQA answer
+
+> “MQA keeps separate query heads but shares a single K and V representation across them. That dramatically reduces KV-cache traffic during decode, but it creates an information bottleneck because heads can no longer maintain independent key/value subspaces. A model trained with MQA can adapt, while post-hoc conversion from MHA is more likely to raise perplexity. My kernel should not itself degrade quality: it must match the reference for the same MQA architecture.”
 
 ## Correctness strategy
 
@@ -425,6 +544,10 @@ Tests passing are not the complete answer; explain why the oracles are independe
 
 > “I began by building reliable distributed infrastructure, then moved into ML to apply the same systems discipline to how models are trained, understood, served, and evaluated.”
 
+## 60-second background
+
+> “I started in production distributed systems. At Inture I worked on supply-chain services, including SQL and connection-pool profiling that reduced p99 latency, and at Oracle I worked on petabyte-scale backup and recovery under strict SLAs, where profiling and resource-aware scheduling improved throughput. During my NYU master’s I moved into ML systems, with projects spanning model safety and interpretability, GRPO training analysis, inference kernels, and a customer-facing RAG application. The common thread is that I like reliability and performance questions that have to be measured rather than assumed, which is why I’m interested in work connecting models, serving systems, evaluation, and real customer workloads.”
+
 ## Why this kind of role?
 
 - It combines customer problem decomposition with hands-on model/application work.
@@ -477,12 +600,12 @@ Answer each aloud in 30–60 seconds.
 1. Why not use a deterministic router?
 2. Why not use a vector database?
 3. Why use RRF rather than weighted score fusion?
-4. What proves the reranker helps?
-5. What does 14/14 legitimately establish?
-6. Can your judge actually verify grounding?
-7. What happens when a mixed question stops after SQL?
-8. How would this scale to one million chunks?
-9. What breaks with confidential customer documents?
+4. Exactly how does the reranker turn 25 candidates into eight?
+5. What proves the reranker helps?
+6. What does 14/14 legitimately establish?
+7. Can your judge actually verify grounding?
+8. What happens when a mixed question stops after SQL?
+9. How would this scale to one million chunks?
 10. What would you improve first: quality, latency, or scale, and why?
 
 ## FlashAttention2
@@ -493,12 +616,13 @@ Answer each aloud in 30–60 seconds.
 4. What does split-KV buy, and when does it hurt?
 5. How are split outputs merged?
 6. Why does GQA enable a tensor-core path?
-7. Why is low decode L2 hit expected?
-8. Why did your kernel lose to SDPA?
-9. How do you know the kernel is correct?
-10. What is the weakest claim in the project?
-11. What did AI generate, and what did you personally own?
-12. What would you redesign if starting again?
+7. Why can MQA increase perplexity, and why is that not a kernel excuse?
+8. Why is low decode L2 hit expected?
+9. Why did your kernel lose to SDPA?
+10. How do you know the kernel is correct?
+11. What is the weakest claim in the project?
+12. What did AI generate, and what did you personally own?
+13. What would you redesign if starting again?
 
 ## About you
 
@@ -524,4 +648,3 @@ Answer each aloud in 30–60 seconds.
 8. Never overstate personal authorship of AI-generated work.
 9. Keep answers to roughly 60–90 seconds unless invited deeper.
 10. Use the pattern: **decision, reason, rejected alternative, cost, evidence**.
-
