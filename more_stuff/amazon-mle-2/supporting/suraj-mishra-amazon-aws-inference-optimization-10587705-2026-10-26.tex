@@ -1,0 +1,197 @@
+%-------------------------
+% Career-Ops LaTeX CV Template
+% Based on: Gabriel Sison / sb2nov resume template
+% License: MIT
+%------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Random Stuff %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[letterpaper,11pt]{article}
+\DeclareUnicodeCharacter{00D7}{\ensuremath{\times}}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome}
+\usepackage{multicol}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-7pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{0pt}]
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Commands  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-3pt}}
+  }
+}
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-3pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & \textbf{\small #2} \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeSubheadingContinue}[2]{
+  \vspace{-3pt}
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeProjectHeading}[2]{
+  \vspace{-3pt}\item
+    \begin{tabularx}{1.0\textwidth}[t]{@{}Xr@{}}
+      \textbf{#1} & \textbf{\small #2} \\
+    \end{tabularx}\vspace{-7pt}
+}
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{0pt}}
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{0pt}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Heading  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\small}{\fontsize{10.5}{13}\selectfont}
+\begin{document}
+    \begin{center}
+        % NAME
+        {\Huge\scshape Suraj Mishra}
+        % SUBHEADING
+        \\ New York, NY \textbar{} 551-371-2172\\
+        \small
+        % EMAIL
+        % EMAIL_URL already carries its scheme: sanitizeUrl() prefixes bare
+        % addresses with mailto:, so the template must not add a second one.
+        \href{mailto:sm12377@nyu.edu}{\underline{sm12377@nyu.edu}} ~
+        % LINKEDIN
+        \href{https://www.linkedin.com/in/msuraj001/}{\underline{linkedin.com/in/msuraj001}}  ~
+        % GITHUB
+        \href{https://github.com/surajm20061998}{\underline{github.com/surajm20061998}} ~
+        \href{https://surajm20061998.github.io/}{\underline{Portfolio}}
+    \end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Education  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Professional Summary}
+\small{Software engineer focused on GPU kernel optimization and LLM inference, with nearly four years of professional software development at Oracle and Incture and a master's from NYU. Built Triton attention and KV-cache kernels validated by 210 H100 tests and authored merged vLLM/SGLang contributions to serving observability and benchmark correctness. Combines GPU profiling, reproducible performance measurement, backend development and infrastructure automation to make inference faster and more dependable.}
+
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {New York University}{New York, NY}
+      {Masters in Computer and Information Systems \textbar{} GPA: 3.72/4.00}{Sept 2024 - May 2026}
+        \resumeItemListStart
+            \resumeItem{\textbf{Coursework:} Deep Learning, Machine Learning, Building LLM Reasoners, Operating Systems}
+        \resumeItemListEnd
+
+    \resumeSubheading
+      {National Institute of Technology, Bhopal}{Bhopal, India}
+      {B.Tech in Computer Science and Engineering}{Jul 2016 - Jun 2020}
+  \resumeSubHeadingListEnd
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Experience  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Work Experience}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Oracle}{Jan 2022 - Aug 2024}
+      {Member Technical Staff}{Bengaluru, India}
+      \resumeItemListStart
+            \resumeItem{Redesigned \textbf{JUnit 5/Jupiter test execution and object lifecycles}, reducing end-to-end execution of the then-existing full pipeline from \textbf{approximately 10-11 hours to within 3 hours}; enabled expansion into functional, load, stress and long-running suites.}
+            \resumeItem{Moved dependent Recovery Appliance, policy, network and protected-database interface objects into shared setup; separated verification from state-changing tests, grouped compatible tests for parallel/sequential reuse and distributed suites across compute instances through \textbf{TeamCity}.}
+            \resumeItem{Adapted existing \textbf{Terraform} provisioning scripts for tenancy/network settings; authored readiness and artifact-collection scripts plus cleanup that ran despite earlier failures, and deployed development code/images with \textbf{Ansible}.}
+            \resumeItem{Automated Recovery Appliance migration test workflows from provisioning through teardown, checking recovery windows, data-loss exposure, protected states and backup continuity; expanded specification-based functional coverage on representative hardware.}
+            \resumeItem{Researched Java logging libraries for automatic test-class/function attribution and wrote a shell script organizing interleaved output into class-based logs to investigate service error-code, message and resource-field discrepancies.}
+            \resumeItem{Tested \textbf{Oracle Database Zero Data Loss Autonomous Recovery Service} in Azure and Google Cloud environments.}
+            \resumeItem{Validated new rack and bare-metal hardware with point-in-time recovery and functional tests; documented procedures and partially automated them for TeamCity integration.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Incture Technologies}{Sept 2020 - Dec 2021}
+      {Software Engineer}{Bengaluru, India}
+      \resumeItemListStart
+            \resumeItem{Built stateless \textbf{Java/Spring Boot} backend microservices for enterprise supply-chain analytics supporting \textbf{5× traffic growth}; reduced API \textbf{p99 latency by about 70\%} through SQL plan profiling, indexing and connection-pool tuning.}
+            \resumeItem{Led root-cause investigations into data consistency failures and orchestration deadlocks; automated \textbf{Jenkins/Ansible blue-green deployments}, eliminating release downtime and reducing customer-reported incidents by \textbf{about 85\%}.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%  PROJECTS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Projects}
+\resumeSubHeadingListStart
+    \resumeProjectHeading
+      {\textbf{TritonAttn: Attention and KV-Cache Kernels} \emph{$|$ Triton, CUDA, PyTorch, H100}}{2026}
+      \resumeItemListStart
+            \resumeItem{Built a from-scratch GPU attention library reproducing FlashAttention-2, Flash-Decoding, GQA, StreamingLLM and KIVI as fused Triton kernels across prefill and decode; \textbf{210/210 tests passing on H100 (sm\_90)}.}
+            \resumeItem{Engineered a FlashAttention-2 prefill kernel reaching \textbf{433 TFLOP/s BF16} and \textbf{1.1-1.3× PyTorch SDPA at long sequence lengths} through online-softmax tiling, base-2 exp2 and Hopper autotuning.}
+            \resumeItem{Implemented split-KV Flash-Decoding with an occupancy-aware split policy and tensor-core GQA/MQA path; achieved \textbf{up to 13.6× versus naive decode} and \textbf{peak 1.29× versus SDPA in target GQA regimes}.}
+            \resumeItem{Implemented KIVI INT8/INT4/INT2 KV-cache quantization with in-kernel bit-unpacking; achieved \textbf{5.2× KV compression} and \textbf{+0.33\% INT4 perplexity}, with bit-for-bit validation against dequantize-then-attend.}
+            \resumeItem{Used \textbf{NVIDIA Nsight Compute} to diagnose register-pressure-capped occupancy; integrated kernels into Hugging Face Transformers and validated token-identical greedy generation.}
+      \resumeItemListEnd
+
+    \resumeProjectHeading
+      {\textbf{Merged vLLM Contributions} \emph{$|$ Python, async HTTP, pytest, model serving}}{Sept 2026 - Present}
+      \resumeItemListStart
+            \resumeItem{Authored merged \textbf{\href{https://github.com/vllm-project/vllm/pull/55508}{vLLM \#55508}}, correcting time-to-first-token (TTFT), end-to-end latency and time-per-output-token (TPOT) accounting across completion, chat, audio and legacy inference benchmark clients.}
+            \resumeItem{Unified the first-token timestamp, stopped non-token usage trailers from extending request latency and rejected usage-only streams; enforced the decode-window timing invariant with \textbf{12 new and 8 sibling tests passing}.}
+            \resumeItem{Authored merged \textbf{\href{https://github.com/vllm-project/vllm/pull/62205}{vLLM \#62205}}, adding request-ID-correlated completion output logging for streaming deltas, non-streaming responses and final accumulated output; validated \textbf{53 focused and 281 broader regression tests}.}
+            \resumeItem{Authored merged \textbf{\href{https://github.com/vllm-project/vllm/pull/62204}{vLLM \#62204}} to document and regression-test remote-media retry byte-budget accounting across synchronous/asynchronous downloads; improved operator-facing guidance with \textbf{9 focused tests passing}.}
+      \resumeItemListEnd
+
+    \resumeProjectHeading
+      {\textbf{Merged SGLang Scheduler Metrics Fix} \emph{$|$ Python, request lifecycle, Prometheus}}{Sept 2026}
+      \resumeItemListStart
+            \resumeItem{Authored merged \textbf{\href{https://github.com/sgl-project/sglang/pull/39312}{SGLang \#39312}}, reproducing negative queue-time metrics and a scheduler assertion when retracted or preempted requests re-entered the waiting queue.}
+            \resumeItem{Accumulated every wait interval, closed waits idempotently across chunked prefill and preserved values across process-clock rebasing; retained scheduling decisions and the existing Prometheus histogram contract.}
+            \resumeItem{Added six regression/contract tests; validated \textbf{303 related unit tests and 20,000 randomized lifecycles} across unified/disaggregated modes, preserving behavior on \textbf{9,504 non-retracted cases}.}
+      \resumeItemListEnd
+
+    \resumeProjectHeading
+      {\textbf{LLM Inference Control Plane} \emph{$|$ Go, Kubernetes, Kubebuilder, Prometheus}}{Aug 2026 - Present}
+      \resumeItemListStart
+            \resumeItem{Built a Kubernetes operator deploying self-hosted LLMs as an OpenAI-compatible service; gated canary promotion, rollback or hold on measured serving quality while keeping the last good revision available.}
+            \resumeItem{Implemented an SSE sidecar measuring TTFT, errors, concurrency and queue depth; separated queue/concurrency-based autoscaling from rollout decisions and packaged dashboards with multi-window SLO alerts.}
+            \resumeItem{Established p95 TTFT stability in a CPU feasibility study before using it as a release gate; hardened the operator with admission checks, deterministic tests and CI checks for generated API/documentation drift.}
+      \resumeItemListEnd
+\resumeSubHeadingListEnd
+\section{Technical Skills}
+\vspace{-7pt}
+\begin{itemize}
+[leftmargin=0.15in, label={}]\small{\item{
+        \textbf{Languages and GPU}{: }{Python, C++, Java, Go, SQL; Triton, CUDA, H100/A100, tensor cores, FP16/BF16, shared/global/L2 memory, occupancy and register-pressure analysis} \\
+        \textbf{Inference optimization}{: }{FlashAttention, split-KV decoding, GQA/MQA, INT2/INT4/INT8 KV-cache quantization, fusion, autotuning, Nsight Compute/Systems, CUDA events, roofline analysis} \\
+        \textbf{LLM systems}{: }{PyTorch, Transformers, vLLM, SGLang, llama.cpp, TensorRT-LLM, transformer architecture, TTFT/E2E/TPOT, continuous/dynamic batching, async HTTP, SSE} \\
+        \textbf{Training and testing}{: }{FSDP, DeepSpeed, NCCL, RDMA, GRPO, LoRA/QLoRA, W\&B; pytest, JUnit 5, timing-invariant and randomized lifecycle testing, reproducible benchmarking} \\
+        \textbf{Infrastructure}{: }{Kubernetes, Kubebuilder, Docker, Terraform, Ansible, SLURM, Prometheus, Grafana, SLOs, Git/GitHub Actions, TeamCity, Jenkins, canary and blue-green delivery} \\
+}}
+\end{itemize}
+
+%%%%  END  %%%%
+
+\end{document}
